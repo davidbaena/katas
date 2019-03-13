@@ -10,22 +10,48 @@ typealias Success<A> = Try.Success<A>
 sealed class Try<out A> {
 
     companion object {
-        operator fun <A> invoke(f: () -> A): Try<A> = throw NotImplementedError()
+        operator fun <A> invoke(f: () -> A): Try<A> =
+                try {
+                    Success(f())
+                } catch (t: Throwable) {
+                    Failure(t)
+                }
     }
 
-    class Success<out A>: Try<A>()
-    class Failure<out A>: Try<A>()
+    class Success<out A>(val value: A) : Try<A>()
+    class Failure<out A>(val exception: Throwable) : Try<A>()
 
 }
 
-fun <A> Try<A>.filter(any: Any): Any = throw NotImplementedError()
+fun <A> Try<A>.filter(predicate: (A) -> Boolean): Try<A> = fold(
+        transformFailure = { Failure(it) },
+        transformSuccess = {
+            if (predicate(it)) {
+                Success(it)
+            } else {
+                Failure(PredicateException("Predicate does not hold for $it"))
+            }
+        }
+)
 
-fun <A> Try<A>.fold(any1: Any, any2: Any): Any = throw NotImplementedError()
+fun <A, B> Try<A>.fold(transformFailure: (Throwable) -> B, transformSuccess: (A) -> B): B = when (this) {
+    is Try.Success -> try {
+        transformSuccess(value)
+    } catch (t: Throwable) {
+        transformFailure(t)
+    }
+    is Try.Failure -> transformFailure(exception)
+}
 
-fun <A> Try<A>.get(): Any = throw NotImplementedError()
+fun <A> Try<A>.get(): A = when (this) {
+    is Try.Success -> value
+    is Try.Failure -> throw exception
+}
 
-fun <A> Try<A>.isFailure(): Any = throw NotImplementedError()
+fun <A> Try<A>.isFailure(): Boolean = this is Failure
 
-fun <A> Try<A>.isSuccess(): Any = throw NotImplementedError()
+fun <A> Try<A>.isSuccess(): Boolean = this is Success
 
-fun <A> Try<A>.map(any: Any): Any = throw NotImplementedError()
+fun <A, B> Try<A>.map(transform: (A) -> B): Try<B> = fold(
+        transformFailure = { Failure(it) },
+        transformSuccess = { Success(transform(it)) })
