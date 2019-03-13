@@ -7,6 +7,10 @@ data class PredicateException(override val message: String) : Exception(message)
 typealias Failure<A> = Try.Failure<A>
 typealias Success<A> = Try.Success<A>
 
+//Functor
+//Container with map operation:
+//Try<A>.map(A ->B) -> Try<B>
+
 sealed class Try<out A> {
 
     companion object {
@@ -55,3 +59,4 @@ fun <A> Try<A>.isSuccess(): Boolean = this is Success
 fun <A, B> Try<A>.map(transform: (A) -> B): Try<B> = fold(
         transformFailure = { Failure(it) },
         transformSuccess = { Success(transform(it)) })
+

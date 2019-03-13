@@ -4,4 +4,7 @@ package functional.transforms.map
 
 import functional.transforms.Movie
 
-fun getMovies(movies: List<Movie>): Map<Int, String> = emptyMap()
+fun getMovies(movies: List<Movie>): Map<Int, String> =
+        movies.map { movie ->
+            movie.id to movie.title
+        }.toMap()

@@ -4,4 +4,4 @@ package functional.transforms.flatMap.simple
 
 import functional.transforms.MovieList
 
-fun getAllMoviesIds(list: List<MovieList>): List<Int> = emptyList()
+fun getAllMoviesIds(list: List<MovieList>): List<Int> = list.flatMap { it.movies }.map { it.id }
