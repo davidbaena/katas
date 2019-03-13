@@ -2,7 +2,9 @@
 
 package functions.cps
 
-data class FailureException(override val message: String): Exception(message)
+data class FailureException(override val message: String) : Exception(message)
 
-fun performOperationCPS(any1: Any, any2: Any, any3: Any) {
+fun performOperationCPS(check: () -> Boolean, onSuccess: (Int) -> Unit, onError: (Exception) -> Unit) {
+    if (check()) onSuccess(42)
+    else onError(FailureException("Error"))
 }

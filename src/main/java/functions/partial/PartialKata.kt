@@ -4,4 +4,4 @@ package functions.partial
 
 data class Element(val type: String, val position: String, val id: Int)
 
-lateinit var partial: (Int) -> Element
+var partial: (Int) -> Element = { Element("Blog", "Fixed", it) }
